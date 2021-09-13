@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace ParrelSync
+namespace ParrelSyncEditor
 {
     public class FileUtilities : MonoBehaviour
     {

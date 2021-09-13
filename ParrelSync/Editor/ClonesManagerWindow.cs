@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using ParrelSync;
 
-namespace ParrelSync
+namespace ParrelSyncEditor
 {
     /// <summary>
     ///Clones manager Unity editor window
@@ -40,15 +41,11 @@ namespace ParrelSync
                        "Sorry, but " + ClonesManager.ProjectName + " doesn't support Linux currently.\n" +
                        "Please create a feature request on GitHub issue page if you want it to be added.",
                        MessageType.Info);
-                if (GUILayout.Button("Open GitHub issue Page"))
-                {
-                    Application.OpenURL(ExternalLinks.GitHubIssue);
-                }
                 return;
             }
 
             /// If it is a clone project...
-            if (ClonesManager.IsClone())
+            if (Clones.IsClone())
             {
                 //Find out the original project name and show the help box
                 string originalProjectPath = ClonesManager.GetOriginalProjectPath();
@@ -70,13 +67,9 @@ namespace ParrelSync
                 //Clone project custom argument.
                 GUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Arguments", GUILayout.Width(70));
-                if (GUILayout.Button("?", GUILayout.Width(20)))
-                {
-                    Application.OpenURL(ExternalLinks.CustomArgumentHelpLink);
-                }
                 GUILayout.EndHorizontal();
 
-                string argumentFilePath = Path.Combine(ClonesManager.GetCurrentProjectPath(), ClonesManager.ArgumentFileName);
+                string argumentFilePath = Path.Combine(ClonesManager.GetCurrentProjectPath(), Clones.ArgumentFileName);
                 //Need to be careful with file reading / writing since it will effect the deletion of
                 //  the clone project(The directory won't be fully deleted if there's still file inside being read or write).
                 //The argument file will be deleted first at the beginning of the project deletion process
@@ -131,13 +124,9 @@ namespace ParrelSync
 
                         GUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField("Arguments", GUILayout.Width(70));
-                        if (GUILayout.Button("?", GUILayout.Width(20)))
-                        {
-                            Application.OpenURL(ExternalLinks.CustomArgumentHelpLink);
-                        }
                         GUILayout.EndHorizontal();
 
-                        string argumentFilePath = Path.Combine(cloneProjectPath, ClonesManager.ArgumentFileName);
+                        string argumentFilePath = Path.Combine(cloneProjectPath, Clones.ArgumentFileName);
                         //Need to be careful with file reading/writing since it will effect the deletion of
                         //the clone project(The directory won't be fully deleted if there's still file inside being read or write).
                         //The argument file will be deleted first at the beginning of the project deletion process 

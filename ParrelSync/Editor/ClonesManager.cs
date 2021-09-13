@@ -1,27 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.IO;
 using Debug = UnityEngine.Debug;
+using ParrelSync;
 
-namespace ParrelSync
+namespace ParrelSyncEditor
 {
     /// <summary>
     /// Contains all required methods for creating a linked clone of the Unity project.
     /// </summary>
     public class ClonesManager
     {
-        /// <summary>
-        /// Name used for an identifying file created in the clone project directory.
-        /// </summary>
-        /// <remarks>
-        /// (!) Do not change this after the clone was created, because then connection will be lost.
-        /// </remarks>
-        public const string CloneFileName = ".clone";
+
 
         /// <summary>
         /// Suffix added to the end of the project clone name when it is created.
@@ -38,10 +31,6 @@ namespace ParrelSync
         /// </summary>
         public const int MaxCloneProjectCount = 10;
 
-        /// <summary>
-        /// Name of the file for storing clone's argument.
-        /// </summary>
-        public const string ArgumentFileName = ".parrelsyncarg";
 
         /// <summary>
         /// Default argument of the new clone
@@ -56,7 +45,7 @@ namespace ParrelSync
         /// <returns></returns>
         public static Project CreateCloneFromCurrent()
         {
-            if (IsClone())
+            if (Clones.IsClone())
             {
                 Debug.LogError("This project is already a clone. Cannot clone it.");
                 return null;
@@ -121,11 +110,11 @@ namespace ParrelSync
         private static void RegisterClone(Project cloneProject)
         {
             /// Add clone identifier file.
-            string identifierFile = Path.Combine(cloneProject.projectPath, ClonesManager.CloneFileName);
+            string identifierFile = Path.Combine(cloneProject.projectPath, Clones.CloneFileName);
             File.Create(identifierFile).Dispose();
 
             //Add argument file with default argument
-            string argumentFilePath = Path.Combine(cloneProject.projectPath, ClonesManager.ArgumentFileName);
+            string argumentFilePath = Path.Combine(cloneProject.projectPath, Clones.ArgumentFileName);
             File.WriteAllText(argumentFilePath, DefaultArgument, System.Text.Encoding.UTF8);
 
             /// Add collabignore.txt to stop the clone from messing with Unity Collaborate if it's enabled. Just in case.
@@ -207,7 +196,7 @@ namespace ParrelSync
         public static void DeleteClone(string cloneProjectPath)
         {
             /// Clone won't be able to delete itself.
-            if (ClonesManager.IsClone()) return;
+            if (Clones.IsClone()) return;
 
             ///Extra precautions.
             if (cloneProjectPath == string.Empty) return;
@@ -224,7 +213,7 @@ namespace ParrelSync
                     //The argument file will be deleted first at the beginning of the project deletion process 
                     //to prevent any further reading and writing to it(There's a File.Exist() check at the (file)editor windows.)
                     //If there's any file in the directory being write/read during the deletion process, the directory can't be fully removed.
-                    identifierFile = Path.Combine(cloneProjectPath, ClonesManager.ArgumentFileName);
+                    identifierFile = Path.Combine(cloneProjectPath, Clones.ArgumentFileName);
                     File.Delete(identifierFile);
 
                     args = "/c " + @"rmdir /s/q " + string.Format("\"{0}\"", cloneProjectPath);
@@ -237,7 +226,7 @@ namespace ParrelSync
                     //The argument file will be deleted first at the beginning of the project deletion process 
                     //to prevent any further reading and writing to it(There's a File.Exist() check at the (file)editor windows.)
                     //If there's any file in the directory being write/read during the deletion process, the directory can't be fully removed.
-                    identifierFile = Path.Combine(cloneProjectPath, ClonesManager.ArgumentFileName);
+                    identifierFile = Path.Combine(cloneProjectPath, Clones.ArgumentFileName);
                     File.Delete(identifierFile);
 
                     FileUtil.DeleteFileOrDirectory(cloneProjectPath);
@@ -360,23 +349,7 @@ namespace ParrelSync
 
         #region Utility methods
 
-        private static bool? isCloneFileExistCache = null;
 
-        /// <summary>
-        /// Returns true if the project currently open in Unity Editor is a clone.
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsClone()
-        {
-            if (isCloneFileExistCache == null)
-            {
-                /// The project is a clone if its root directory contains an empty file named ".clone".
-                string cloneFilePath = Path.Combine(ClonesManager.GetCurrentProjectPath(), ClonesManager.CloneFileName);
-                isCloneFileExistCache = File.Exists(cloneFilePath);
-            }
-
-            return (bool) isCloneFileExistCache;
-        }
 
         /// <summary>
         /// Get the path to the current unityEditor project folder's info
@@ -397,25 +370,7 @@ namespace ParrelSync
             return new Project(pathString);
         }
 
-        /// <summary>
-        /// Get the argument of this clone project.
-        /// If this is the original project, will return an empty string.
-        /// </summary>
-        /// <returns></returns>
-        public static string GetArgument()
-        {
-            string argument = "";
-            if (IsClone())
-            {
-                string argumentFilePath = Path.Combine(GetCurrentProjectPath(), ClonesManager.ArgumentFileName);
-                if (File.Exists(argumentFilePath))
-                {
-                    argument = File.ReadAllText(argumentFilePath, System.Text.Encoding.UTF8);
-                }
-            }
 
-            return argument;
-        }
 
         /// <summary>
         /// Returns the path to the original project.
@@ -425,7 +380,7 @@ namespace ParrelSync
         /// <returns></returns>
         public static string GetOriginalProjectPath()
         {
-            if (IsClone())
+            if (Clones.IsClone())
             {
                 /// If this is a clone...
                 /// Original project path can be deduced by removing the suffix from the clone's path.

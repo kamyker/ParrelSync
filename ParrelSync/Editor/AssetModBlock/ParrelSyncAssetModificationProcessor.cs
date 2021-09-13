@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using ParrelSync;
 using UnityEditor;
 using UnityEngine;
-namespace ParrelSync
+namespace ParrelSyncEditor
 {
     /// <summary>
     /// For preventing assets being modified from the clone instance.
@@ -11,7 +12,7 @@ namespace ParrelSync
     {
         public static string[] OnWillSaveAssets(string[] paths)
         {
-            if (ClonesManager.IsClone() && Preferences.AssetModPref.Value)
+            if (Clones.IsClone() && Preferences.AssetModPref.Value)
             {
                 if (paths != null && paths.Length > 0 && !EditorQuit.IsQuiting)
                 {

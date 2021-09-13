@@ -1,6 +1,9 @@
 {
-    "name": "ParrelSync",
-    "references": [],
+    "name": "ParrelSync.Editor",
+    "rootNamespace": "",
+    "references": [
+        "ParrelSync"
+    ],
     "includePlatforms": [
         "Editor"
     ],

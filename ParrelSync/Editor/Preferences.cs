@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using ParrelSync;
 using UnityEngine;
 using UnityEditor;
 
-namespace ParrelSync
+namespace ParrelSyncEditor
 {
     /// <summary>
     /// To add value caching for <see cref="EditorPrefs"/> functions
@@ -70,7 +71,7 @@ namespace ParrelSync
 
         private void OnGUI()
         {
-            if (ClonesManager.IsClone())
+            if (Clones.IsClone())
             {
                 EditorGUILayout.HelpBox(
                         "This is a clone project. Please use the original project editor to change preferences.",
